@@ -30,7 +30,11 @@ def load_and_preprocess_data(
         lines: List[str] = file.read().splitlines()
 
     # TODO
-    bigrams: List[Tuple[str, str]] = None
+    bigrams: List[Tuple[str, str]] = []
+    for line in lines:
+        word = start_token + line.split()[0].lower() + end_token # obtenemos el nombre
+        word_bigrams = [(word[i],word[i+1]) for i in range(len(word)-1)]
+        bigrams.extend(word_bigrams)
 
     return bigrams
 
@@ -49,8 +53,7 @@ def char_to_index(alphabet: str, start_token: str, end_token: str) -> Dict[str, 
     """
     # Create a dictionary with start token at the beginning and end token at the end
     # TODO
-    char_to_idx: Dict[str, int] = None
-
+    char_to_idx: Dict[str, int] = {char: idx for idx, char in enumerate(start_token + alphabet + end_token)}
     return char_to_idx
 
 
@@ -66,8 +69,7 @@ def index_to_char(char_to_index: Dict[str, int]) -> Dict[int, str]:
     """
     # Reverse the char_to_index mapping
     # TODO
-    idx_to_char: Dict[int, str] = None
-
+    idx_to_char: Dict[int, str] = {idx: char for char, idx in char_to_index.items()}
     return idx_to_char
 
 
@@ -93,12 +95,19 @@ def count_bigrams(
 
     # Initialize a 2D tensor for counting bigrams
     # TODO
-    bigram_counts: torch.Tensor = None
+    len_alphabet = len(char_to_idx.keys())
+    bigram_counts: torch.Tensor = torch.zeros(size=(len_alphabet,len_alphabet))
 
     # Iterate over each bigram and update the count in the tensor
     # TODO
+    for bigram in bigrams:
+        i = char_to_idx.get(bigram[0])
+        j = char_to_idx.get(bigram[1])
+        if i is not None and j is not None:
+            bigram_counts[i, j] += 1
 
-    return bigram_counts
+
+    return bigram_counts 
 
 
 def plot_bigram_counts(bigram_counts: torch.Tensor, idx_to_char: Dict):
